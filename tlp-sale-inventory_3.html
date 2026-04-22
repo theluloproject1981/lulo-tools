@@ -1032,6 +1032,17 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
   function n(v) { const x = parseFloat(v); return isNaN(x) ? 0 : x; }
+
+  // Sell-through math: Total Received = qty_nj + total_sold
+  // (Nordstrom allocated is NOT counted — it's just internal tracking)
+  // (Gifts are tracked separately, not counted toward received)
+  function computedTotalReceived(sku) {
+    const totalSold = Object.values(sku.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+    return n(sku.qtyNj) + totalSold;
+  }
+  function computedTotalSold(sku) {
+    return Object.values(sku.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+  }
   function genId() { return 'k_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7); }
   function currentMonthKey() {
     const d = new Date();
@@ -1381,8 +1392,8 @@
     }
     const adminRows = [adminHeader];
     for (const s of skus) {
-      const totalRec = Number(s.totalReceived) || 0;
-      const totalSold = Object.values(s.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+      const totalRec = computedTotalReceived(s);
+      const totalSold = computedTotalSold(s);
       const totalGift = Object.values(s.giftedByMonth || {}).reduce((a,b) => a + n(b), 0);
       const st = totalRec > 0 ? (totalSold / totalRec) * 100 : 0;
       const monthCols = [];
@@ -1401,8 +1412,8 @@
     for (const s of skus) {
       const k = s.reference + '|' + s.name;
       if (!styleAgg[k]) styleAgg[k] = { reference: s.reference, name: s.name, received: 0, sold: 0, nj: 0, nordstrom: 0, returns: 0 };
-      styleAgg[k].received += Number(s.totalReceived) || 0;
-      styleAgg[k].sold += Object.values(s.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+      styleAgg[k].received += computedTotalReceived(s);
+      styleAgg[k].sold += computedTotalSold(s);
       styleAgg[k].nj += n(s.qtyNj);
       styleAgg[k].nordstrom += n(s.qtyNordstrom);
       styleAgg[k].returns += n(s.qtyReturns);
@@ -1435,8 +1446,8 @@
       nord += n(s.qtyNordstrom);
       soldMonth += n(s.soldByMonth?.[monthKey] || 0);
       giftedMonth += n(s.giftedByMonth?.[monthKey] || 0);
-      totalReceivedAll += Number(s.totalReceived) || 0;
-      totalSoldAll += Object.values(s.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+      totalReceivedAll += computedTotalReceived(s);
+      totalSoldAll += computedTotalSold(s);
     }
     const overallSt = totalReceivedAll > 0 ? Math.round((totalSoldAll / totalReceivedAll) * 100) : 0;
 
@@ -1749,8 +1760,8 @@
         currentRef = sku.reference;
         // Compute style-level aggregates
         const styleSkus = items.filter(s => s.reference === currentRef);
-        const styleRec = styleSkus.reduce((a, s) => a + (Number(s.totalReceived) || 0), 0);
-        const styleSold = styleSkus.reduce((a, s) => a + Object.values(s.soldByMonth||{}).reduce((x,y) => x + n(y), 0), 0);
+        const styleRec = styleSkus.reduce((a, s) => a + computedTotalReceived(s), 0);
+        const styleSold = styleSkus.reduce((a, s) => a + computedTotalSold(s), 0);
         const styleSt = styleRec > 0 ? Math.round((styleSold / styleRec) * 100) : 0;
         const colCount = 11 + months.length + 1;
         rowsHtml.push(`
@@ -1854,8 +1865,8 @@
   }
 
   function renderAdminRow(sku, months) {
-    const totalRec = Number(sku.totalReceived) || 0;
-    const totalSold = Object.values(sku.soldByMonth||{}).reduce((a,b) => a + n(b), 0);
+    const totalRec = computedTotalReceived(sku);
+    const totalSold = computedTotalSold(sku);
     const totalGift = Object.values(sku.giftedByMonth||{}).reduce((a,b) => a + n(b), 0);
     const st = totalRec > 0 ? Math.round((totalSold / totalRec) * 100) : null;
     let stClass = 'low';
