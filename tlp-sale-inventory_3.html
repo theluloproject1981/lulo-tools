@@ -2035,39 +2035,49 @@
     const sku = state.skus[skuId];
     if (!sku) return;
 
-    // Build a custom prompt — using a confirm dialog pattern
+    // Build a custom prompt — D (DTC), N (Nordstrom), or G (Gift / PR)
     const choice = window.prompt(
-      `Record a sale for:\n\n${sku.name} · ${sku.color} · ${sku.size}\nCurrent NJ: ${n(sku.qtyNj)}\n\nType: D (DTC), N (Nordstrom), or cancel`,
+      `Record for:\n\n${sku.name} · ${sku.color} · ${sku.size}\nCurrent NJ: ${n(sku.qtyNj)}\n\nType: D (DTC) · N (Nordstrom) · G (Gift / PR)`,
       'D'
     );
     if (!choice) return;
     const c = choice.trim().toUpperCase();
-    if (c !== 'D' && c !== 'N' && c !== 'DTC' && c !== 'NORDSTROM') {
-      toast('Invalid choice — D for DTC or N for Nordstrom', 'error');
+    const validChoices = ['D','DTC','N','NORDSTROM','G','GIFT','PR'];
+    if (!validChoices.includes(c)) {
+      toast('Invalid choice — type D, N, or G', 'error');
       return;
     }
 
     const monthKey = currentMonthKey();
-    sku.soldByMonth = { ...(sku.soldByMonth || {}) };
-    sku.soldByMonth[monthKey] = (sku.soldByMonth[monthKey] || 0) + 1;
 
-    if (c === 'D' || c === 'DTC') {
-      sku.soldDtcByMonth = { ...(sku.soldDtcByMonth || {}) };
-      sku.soldDtcByMonth[monthKey] = (sku.soldDtcByMonth[monthKey] || 0) + 1;
+    if (c === 'G' || c === 'GIFT' || c === 'PR') {
+      // GIFT — tracked separately, does NOT count as a sale
+      sku.giftedByMonth = { ...(sku.giftedByMonth || {}) };
+      sku.giftedByMonth[monthKey] = (sku.giftedByMonth[monthKey] || 0) + 1;
     } else {
-      sku.soldNordstromByMonth = { ...(sku.soldNordstromByMonth || {}) };
-      sku.soldNordstromByMonth[monthKey] = (sku.soldNordstromByMonth[monthKey] || 0) + 1;
+      // SALE (DTC or Nordstrom)
+      sku.soldByMonth = { ...(sku.soldByMonth || {}) };
+      sku.soldByMonth[monthKey] = (sku.soldByMonth[monthKey] || 0) + 1;
+
+      if (c === 'D' || c === 'DTC') {
+        sku.soldDtcByMonth = { ...(sku.soldDtcByMonth || {}) };
+        sku.soldDtcByMonth[monthKey] = (sku.soldDtcByMonth[monthKey] || 0) + 1;
+      } else {
+        sku.soldNordstromByMonth = { ...(sku.soldNordstromByMonth || {}) };
+        sku.soldNordstromByMonth[monthKey] = (sku.soldNordstromByMonth[monthKey] || 0) + 1;
+      }
     }
 
-    // Decrement NJ — but never go below 0 (pre-sold units won't reduce NJ further)
-    if (n(sku.qtyNj) > 0) {
-      sku.qtyNj = n(sku.qtyNj) - 1;
-    }
+    // Note: we do NOT touch qtyNj here. The warehouse assistant will scan
+    // SHIP OUT when the unit physically leaves, which decrements NJ.
 
     try {
       await saveSku(sku);
-      const channelLabel = (c === 'D' || c === 'DTC') ? 'DTC' : 'Nordstrom';
-      toast(`Sale recorded · ${channelLabel} · ${sku.name} ${sku.size}`, 'success');
+      let label = 'DTC';
+      let kind = 'Sale';
+      if (c === 'N' || c === 'NORDSTROM') label = 'Nordstrom';
+      else if (c === 'G' || c === 'GIFT' || c === 'PR') { label = 'Gift / PR'; kind = 'Gift'; }
+      toast(`${kind} · ${label} · ${sku.name} ${sku.size}`, 'success');
       render();
     } catch(err) {
       toast('Save failed', 'error');
