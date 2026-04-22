@@ -1919,27 +1919,36 @@
 
     // Step 2: Ask for channel
     const channelInput = window.prompt(
-      `Record sale for:\n${targetSku.name} · ${targetSku.color} · ${targetSku.size}\nCurrent NJ: ${n(targetSku.qtyNj)}\n\nType: D (DTC) or N (Nordstrom)`,
+      `Record for:\n${targetSku.name} · ${targetSku.color} · ${targetSku.size}\nCurrent NJ: ${n(targetSku.qtyNj)}\n\nType: D (DTC) · N (Nordstrom) · G (Gift / PR)`,
       'D'
     );
     if (!channelInput) return;
     const c = channelInput.trim().toUpperCase();
-    if (c !== 'D' && c !== 'N' && c !== 'DTC' && c !== 'NORDSTROM') {
-      toast('Invalid choice', 'error');
+    const validChoices = ['D','DTC','N','NORDSTROM','G','GIFT','PR'];
+    if (!validChoices.includes(c)) {
+      toast('Invalid choice — type D, N, or G', 'error');
       return;
     }
 
-    // Record the sale
+    // Record the sale (or gift)
     const monthKey = currentMonthKey();
-    targetSku.soldByMonth = { ...(targetSku.soldByMonth || {}) };
-    targetSku.soldByMonth[monthKey] = (targetSku.soldByMonth[monthKey] || 0) + 1;
 
-    if (c === 'D' || c === 'DTC') {
-      targetSku.soldDtcByMonth = { ...(targetSku.soldDtcByMonth || {}) };
-      targetSku.soldDtcByMonth[monthKey] = (targetSku.soldDtcByMonth[monthKey] || 0) + 1;
+    if (c === 'G' || c === 'GIFT' || c === 'PR') {
+      // GIFT — does NOT count as a sale. Tracked separately.
+      targetSku.giftedByMonth = { ...(targetSku.giftedByMonth || {}) };
+      targetSku.giftedByMonth[monthKey] = (targetSku.giftedByMonth[monthKey] || 0) + 1;
     } else {
-      targetSku.soldNordstromByMonth = { ...(targetSku.soldNordstromByMonth || {}) };
-      targetSku.soldNordstromByMonth[monthKey] = (targetSku.soldNordstromByMonth[monthKey] || 0) + 1;
+      // SALE (DTC or Nordstrom)
+      targetSku.soldByMonth = { ...(targetSku.soldByMonth || {}) };
+      targetSku.soldByMonth[monthKey] = (targetSku.soldByMonth[monthKey] || 0) + 1;
+
+      if (c === 'D' || c === 'DTC') {
+        targetSku.soldDtcByMonth = { ...(targetSku.soldDtcByMonth || {}) };
+        targetSku.soldDtcByMonth[monthKey] = (targetSku.soldDtcByMonth[monthKey] || 0) + 1;
+      } else {
+        targetSku.soldNordstromByMonth = { ...(targetSku.soldNordstromByMonth || {}) };
+        targetSku.soldNordstromByMonth[monthKey] = (targetSku.soldNordstromByMonth[monthKey] || 0) + 1;
+      }
     }
 
     // Note: we do NOT touch qtyNj here. The warehouse assistant will scan
@@ -1947,8 +1956,11 @@
 
     try {
       await saveSku(targetSku);
-      const channelLabel = (c === 'D' || c === 'DTC') ? 'DTC' : 'Nordstrom';
-      toast(`Sale · ${channelLabel} · ${targetSku.name} ${targetSku.size}`, 'success');
+      let label = 'DTC';
+      let kind = 'Sale';
+      if (c === 'N' || c === 'NORDSTROM') label = 'Nordstrom';
+      else if (c === 'G' || c === 'GIFT' || c === 'PR') { label = 'Gift / PR'; kind = 'Gift'; }
+      toast(`${kind} · ${label} · ${targetSku.name} ${targetSku.size}`, 'success');
       render();
     } catch(e) {
       toast('Save failed', 'error');
