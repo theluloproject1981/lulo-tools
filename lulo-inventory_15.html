@@ -1357,6 +1357,7 @@
         { key: 'codeReference', label: 'Code / reference', type: 'text', placeholder: 'e.g. AU77D' },
         { key: 'category', label: 'Collection', type: 'select-category' },
         { key: 'garmentType', label: 'Garment type', type: 'text-suggest-garment' },
+        { key: 'fabric', label: 'Fabric', type: 'select-fabric' },
         { key: 'consumption', label: 'Consumption', type: 'number', unit: 'meters per unit' },
         { key: 'notes', label: 'Notes', type: 'textarea' }
       ]
@@ -2261,6 +2262,22 @@
       return `<div class="field">
         <label>${esc(field.label)} <span class="unit">· pick or type new</span></label>
         <input class="field-input" type="text" data-key="${field.key}" value="${esc(val)}" list="${listId}" autocomplete="off">
+        <datalist id="${listId}">${opts}</datalist>
+      </div>`;
+    }
+    if (field.type === 'select-fabric') {
+      const listId = 'suggest-fabric-list';
+      // Pull all fabrics from state.items, sorted by name
+      const fabrics = Object.values(state.items || {})
+        .filter(i => i.section === 'fabrics')
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      const opts = fabrics.map(f => {
+        const label = f.category ? `${f.name} — ${f.category}` : f.name;
+        return `<option value="${esc(label)}">`;
+      }).join('');
+      return `<div class="field">
+        <label>${esc(field.label)} <span class="unit">· pick from your ${fabrics.length} fabrics or type new</span></label>
+        <input class="field-input" type="text" data-key="${field.key}" value="${esc(val)}" list="${listId}" autocomplete="off" placeholder="Start typing fabric name…">
         <datalist id="${listId}">${opts}</datalist>
       </div>`;
     }
