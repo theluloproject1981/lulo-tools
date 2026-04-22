@@ -2155,7 +2155,10 @@
       listingPrice: data.listingPrice ?? '',
       notes: data.notes || '',
       totalReceived: Number(existing?.totalReceived) || 0,
-      soldByMonth: existing?.soldByMonth || {}
+      soldByMonth: existing?.soldByMonth || {},
+      soldDtcByMonth: existing?.soldDtcByMonth || {},
+      soldNordstromByMonth: existing?.soldNordstromByMonth || {},
+      giftedByMonth: existing?.giftedByMonth || {}
     };
     state.skus[id] = sku;
     try {
