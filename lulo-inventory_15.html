@@ -507,7 +507,8 @@
   }
   .variant-gallery-item {
     position: relative;
-    flex: 1;
+    flex: 0 1 60px;
+    max-width: 60px;
     aspect-ratio: 3 / 4;
     background: var(--paper-deep);
     overflow: hidden;
@@ -1995,19 +1996,22 @@
       // For samples: show a small horizontal gallery of variant images + colors
       // For fabrics/materials: show color+quantity rows
       if (item.section === 'samples') {
-        const previewVars = item.variants.slice(0, 4);
-        variantsPreview = `
-          <div class="card-variant-gallery">
-            ${previewVars.map(v => `
-              <div class="variant-gallery-item" title="${esc(v.color || '')} · ${formatQty(Number(v.quantity) || 0)} ${unit}">
-                ${v.image
-                  ? `<img src="${v.image}" alt="${esc(v.color || '')}" loading="lazy">`
-                  : `<div class="variant-gallery-placeholder">${esc((v.color || '·').charAt(0).toUpperCase())}</div>`}
-                <div class="variant-gallery-qty">${formatQty(Number(v.quantity) || 0)}</div>
-              </div>
-            `).join('')}
-            ${item.variants.length > 4 ? `<div class="variant-more-chip">+${item.variants.length - 4}</div>` : ''}
-          </div>`;
+        // Only show variant gallery if there are 2+ variants (1 variant = same as cover image)
+        if (item.variants.length >= 2) {
+          const previewVars = item.variants.slice(0, 4);
+          variantsPreview = `
+            <div class="card-variant-gallery">
+              ${previewVars.map(v => `
+                <div class="variant-gallery-item" title="${esc(v.color || '')} · ${formatQty(Number(v.quantity) || 0)} ${unit}">
+                  ${v.image
+                    ? `<img src="${v.image}" alt="${esc(v.color || '')}" loading="lazy">`
+                    : `<div class="variant-gallery-placeholder">${esc((v.color || '·').charAt(0).toUpperCase())}</div>`}
+                  <div class="variant-gallery-qty">${formatQty(Number(v.quantity) || 0)}</div>
+                </div>
+              `).join('')}
+              ${item.variants.length > 4 ? `<div class="variant-more-chip">+${item.variants.length - 4}</div>` : ''}
+            </div>`;
+        }
       } else {
         const preview = item.variants.slice(0, 4);
         variantsPreview = `
