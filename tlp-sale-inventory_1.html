@@ -307,7 +307,7 @@
 
   .scan-qty-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 20px;
   }
@@ -315,6 +315,20 @@
     border: 1px solid var(--paper-darker);
     padding: 14px 10px;
     text-align: center;
+    position: relative;
+  }
+  .scan-qty-cell.nord-cell {
+    background: var(--paper-deep);
+    border-style: dashed;
+  }
+  .scan-qty-cell .sublabel {
+    font-family: var(--mono);
+    font-size: 7.5px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-whisper);
+    margin-top: 4px;
   }
   .scan-qty-cell .label {
     font-family: var(--mono);
@@ -341,6 +355,15 @@
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-bottom: 16px;
+  }
+  .scan-actions.scan-actions-5 {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .scan-actions.scan-actions-5 .scan-action {
+    padding: 22px 14px;
+    font-size: 14px;
+    letter-spacing: 0.22em;
   }
   .scan-action {
     padding: 14px 10px;
@@ -584,6 +607,77 @@
   }
   tbody td.actions button:hover { border-color: var(--ink); color: var(--ink); background: var(--mustard); }
   tbody td.actions button.del:hover { border-color: var(--cereza); color: var(--cereza); background: transparent; }
+  tbody td.actions button.sale-btn {
+    background: var(--mustard);
+    border-color: var(--ink);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  tbody td.actions button.sale-btn:hover {
+    background: var(--ink);
+    color: var(--mustard);
+  }
+
+  /* ─── SIZE LIST in group edit modal ─── */
+  .sizes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .size-row {
+    display: grid;
+    grid-template-columns: 40px 120px 1fr 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--paper-darker);
+    background: var(--paper);
+    font-size: 12px;
+  }
+  .size-row-size {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    text-align: center;
+  }
+  .size-row-upc {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink-whisper);
+    letter-spacing: 0.04em;
+  }
+  .size-row-stat {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .size-row-stat strong {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    text-transform: none;
+    margin-left: 4px;
+  }
+  .size-row-edit, .size-row-del {
+    padding: 5px 10px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--paper-darker);
+    background: var(--paper);
+    color: var(--ink-soft);
+  }
+  .size-row-edit:hover { border-color: var(--ink); color: var(--ink); background: var(--mustard); }
+  .size-row-del:hover { border-color: var(--cereza); color: var(--cereza); }
 
   /* STYLE AGGREGATION ROWS */
   .style-header-row {
@@ -744,6 +838,8 @@
     max-width: 1600px; margin: 0 auto;
     padding: 20px clamp(18px, 4vw, 44px) 36px;
     display: flex; justify-content: space-between; align-items: baseline;
+    gap: 20px;
+    flex-wrap: wrap;
     border-top: 1px solid var(--paper-darker);
     font-family: var(--mono); font-size: 10px; font-weight: 500;
     letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft);
@@ -751,6 +847,48 @@
   .site-footer .italic {
     font-family: var(--display); font-size: 12px; font-style: italic; font-weight: 400;
     text-transform: none; letter-spacing: 0;
+  }
+  .sellthrough-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 20px;
+    background: var(--paper-deep);
+    border: 1px solid var(--ink);
+  }
+  .st-block {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .st-block-label {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    line-height: 1;
+  }
+  .st-block strong {
+    font-family: var(--display);
+    font-weight: 500;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-transform: none;
+  }
+  .st-block strong.st-pct {
+    color: var(--mustard);
+    font-size: 26px;
+  }
+  .st-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--paper-darker);
   }
 
   @media (max-width: 640px) {
@@ -808,8 +946,8 @@
       <div class="title-stat"><strong id="statSkus">00</strong>SKUs</div>
       <div class="title-stat"><strong id="statNj">00</strong>In NJ</div>
       <div class="title-stat"><strong id="statNordstrom">00</strong>@ Nordstrom</div>
-      <div class="title-stat"><strong id="statReturns">00</strong>Returns</div>
       <div class="title-stat"><strong id="statSoldThisMonth">00</strong>Sold this month</div>
+      <div class="title-stat"><strong id="statGiftedThisMonth">00</strong>Gifted this month</div>
     </div>
   </div>
 </div>
@@ -818,6 +956,22 @@
 
 <footer class="site-footer">
   <span>The Lulo Project · Sale Inventory · NJ Warehouse</span>
+  <span class="sellthrough-summary">
+    <span class="st-block">
+      <span class="st-block-label">Total sold</span>
+      <strong id="statTotalSold">0</strong>
+    </span>
+    <span class="st-divider"></span>
+    <span class="st-block">
+      <span class="st-block-label">Total received</span>
+      <strong id="statTotalReceived">0</strong>
+    </span>
+    <span class="st-divider"></span>
+    <span class="st-block">
+      <span class="st-block-label">Sell-through</span>
+      <strong id="statSellThrough" class="st-pct">—</strong>
+    </span>
+  </span>
   <span class="italic">— Vol. 01, MMXXVI</span>
 </footer>
 
@@ -878,6 +1032,17 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
   function n(v) { const x = parseFloat(v); return isNaN(x) ? 0 : x; }
+
+  // Sell-through math: Total Received = qty_nj + total_sold
+  // (Nordstrom allocated is NOT counted — it's just internal tracking)
+  // (Gifts are tracked separately, not counted toward received)
+  function computedTotalReceived(sku) {
+    const totalSold = Object.values(sku.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+    return n(sku.qtyNj) + totalSold;
+  }
+  function computedTotalSold(sku) {
+    return Object.values(sku.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+  }
   function genId() { return 'k_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7); }
   function currentMonthKey() {
     const d = new Date();
@@ -916,8 +1081,11 @@
       qtyReturns: Number(row.qty_returns) || 0,
       cost: row.cost !== null ? Number(row.cost) : '',
       listingPrice: row.listing_price !== null ? Number(row.listing_price) : '',
-      receivedByMonth: row.received_by_month || {},
+      totalReceived: Number(row.total_received) || 0,
       soldByMonth: row.sold_by_month || {},
+      soldDtcByMonth: row.sold_dtc_by_month || {},
+      soldNordstromByMonth: row.sold_nordstrom_by_month || {},
+      giftedByMonth: row.gifted_by_month || {},
       notes: row.notes || '',
       updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
     };
@@ -935,8 +1103,11 @@
       qty_returns: Number(sku.qtyReturns) || 0,
       cost: sku.cost === '' || sku.cost === null ? null : Number(sku.cost),
       listing_price: sku.listingPrice === '' || sku.listingPrice === null ? null : Number(sku.listingPrice),
-      received_by_month: sku.receivedByMonth || {},
+      total_received: Number(sku.totalReceived) || 0,
       sold_by_month: sku.soldByMonth || {},
+      sold_dtc_by_month: sku.soldDtcByMonth || {},
+      sold_nordstrom_by_month: sku.soldNordstromByMonth || {},
+      gifted_by_month: sku.giftedByMonth || {},
       notes: sku.notes || null,
       updated_at: new Date().toISOString()
     };
@@ -1134,11 +1305,10 @@
         let sku;
         if (existing) {
           sku = { ...existing };
-          // Track received: if qtyNj increased, assume that's a receiving event for THIS month
+          // Track received: if qtyNj increased, count that as new stock received
           const deltaNj = (parsed.qtyNj ?? existing.qtyNj) - existing.qtyNj;
           if (deltaNj > 0) {
-            sku.receivedByMonth = { ...existing.receivedByMonth };
-            sku.receivedByMonth[monthKey] = (sku.receivedByMonth[monthKey] || 0) + deltaNj;
+            sku.totalReceived = (Number(existing.totalReceived) || 0) + deltaNj;
           }
           sku.reference = parsed.reference ?? existing.reference;
           sku.name = parsed.name ?? existing.name;
@@ -1152,7 +1322,7 @@
           if (parsed.notes !== undefined) sku.notes = parsed.notes;
           updated++;
         } else {
-          const totalReceived = n(parsed.qtyNj) + n(parsed.qtyNordstrom);
+          // Only qtyNj counts as physical received. Nordstrom is virtual allocation.
           sku = {
             id: genId(),
             reference: parsed.reference || '',
@@ -1165,7 +1335,7 @@
             qtyReturns: n(parsed.qtyReturns),
             cost: parsed.cost ?? '',
             listingPrice: parsed.listingPrice ?? '',
-            receivedByMonth: totalReceived > 0 ? { [monthKey]: totalReceived } : {},
+            totalReceived: n(parsed.qtyNj),
             soldByMonth: {},
             notes: parsed.notes || ''
           };
@@ -1213,17 +1383,28 @@
     const monthKeys = new Set();
     for (const s of skus) {
       for (const k of Object.keys(s.soldByMonth || {})) monthKeys.add(k);
-      for (const k of Object.keys(s.receivedByMonth || {})) monthKeys.add(k);
+      for (const k of Object.keys(s.giftedByMonth || {})) monthKeys.add(k);
     }
     const months = [...monthKeys].sort();
-    const adminHeader = ['REFERENCIA','NOMBRE','COLOR','CODIGO','TALLA','NJ','NORDSTROM','RETURNS','TOTAL RECEIVED','TOTAL SOLD','SELL-THROUGH %','COST','LISTING PRICE', ...months.flatMap(m => [`${m} received`, `${m} sold`])];
+    const adminHeader = ['REFERENCIA','NOMBRE','COLOR','CODIGO','TALLA','NJ','NORDSTROM','TOTAL RECEIVED','TOTAL SOLD','TOTAL GIFTED','SELL-THROUGH %','COST','LISTING PRICE'];
+    for (const m of months) {
+      adminHeader.push(`${m} sold DTC`, `${m} sold Nord`, `${m} gifted`);
+    }
     const adminRows = [adminHeader];
     for (const s of skus) {
-      const totalRec = Object.values(s.receivedByMonth || {}).reduce((a,b) => a + n(b), 0);
-      const totalSold = Object.values(s.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+      const totalRec = computedTotalReceived(s);
+      const totalSold = computedTotalSold(s);
+      const totalGift = Object.values(s.giftedByMonth || {}).reduce((a,b) => a + n(b), 0);
       const st = totalRec > 0 ? (totalSold / totalRec) * 100 : 0;
-      const monthCols = months.flatMap(m => [n(s.receivedByMonth?.[m]) || 0, n(s.soldByMonth?.[m]) || 0]);
-      adminRows.push([s.reference, s.name, s.color, s.upc, s.size, s.qtyNj, s.qtyNordstrom, s.qtyReturns, totalRec, totalSold, Math.round(st) + '%', s.cost, s.listingPrice, ...monthCols]);
+      const monthCols = [];
+      for (const m of months) {
+        monthCols.push(
+          n(s.soldDtcByMonth?.[m]) || 0,
+          n(s.soldNordstromByMonth?.[m]) || 0,
+          n(s.giftedByMonth?.[m]) || 0
+        );
+      }
+      adminRows.push([s.reference, s.name, s.color, s.upc, s.size, s.qtyNj, s.qtyNordstrom, totalRec, totalSold, totalGift, Math.round(st) + '%', s.cost, s.listingPrice, ...monthCols]);
     }
 
     // Sheet 3: By style (aggregated)
@@ -1231,8 +1412,8 @@
     for (const s of skus) {
       const k = s.reference + '|' + s.name;
       if (!styleAgg[k]) styleAgg[k] = { reference: s.reference, name: s.name, received: 0, sold: 0, nj: 0, nordstrom: 0, returns: 0 };
-      styleAgg[k].received += Object.values(s.receivedByMonth || {}).reduce((a,b) => a + n(b), 0);
-      styleAgg[k].sold += Object.values(s.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+      styleAgg[k].received += computedTotalReceived(s);
+      styleAgg[k].sold += computedTotalSold(s);
       styleAgg[k].nj += n(s.qtyNj);
       styleAgg[k].nordstrom += n(s.qtyNordstrom);
       styleAgg[k].returns += n(s.qtyReturns);
@@ -1257,17 +1438,29 @@
   // ═══════════════════════════════════════════════
   function updateStats() {
     const all = Object.values(state.skus);
-    let nj = 0, nord = 0, returns = 0, soldMonth = 0;
+    let nj = 0, nord = 0, soldMonth = 0, giftedMonth = 0;
+    let totalReceivedAll = 0, totalSoldAll = 0;
     const monthKey = currentMonthKey();
     for (const s of all) {
-      nj += n(s.qtyNj); nord += n(s.qtyNordstrom); returns += n(s.qtyReturns);
+      nj += n(s.qtyNj);
+      nord += n(s.qtyNordstrom);
       soldMonth += n(s.soldByMonth?.[monthKey] || 0);
+      giftedMonth += n(s.giftedByMonth?.[monthKey] || 0);
+      totalReceivedAll += computedTotalReceived(s);
+      totalSoldAll += computedTotalSold(s);
     }
+    const overallSt = totalReceivedAll > 0 ? Math.round((totalSoldAll / totalReceivedAll) * 100) : 0;
+
     $('statSkus').textContent = String(all.length).padStart(2, '0');
     $('statNj').textContent = nj.toLocaleString();
     $('statNordstrom').textContent = nord.toLocaleString();
-    $('statReturns').textContent = returns.toLocaleString();
     $('statSoldThisMonth').textContent = soldMonth.toLocaleString();
+    $('statGiftedThisMonth').textContent = giftedMonth.toLocaleString();
+    $('statSellThrough').textContent = totalReceivedAll > 0 ? overallSt + '%' : '—';
+    const totalSoldEl = $('statTotalSold');
+    if (totalSoldEl) totalSoldEl.textContent = totalSoldAll.toLocaleString();
+    const totalRecEl = $('statTotalReceived');
+    if (totalRecEl) totalRecEl.textContent = totalReceivedAll.toLocaleString();
     $('skuCountTab').textContent = String(all.length).padStart(2, '0');
   }
 
@@ -1291,7 +1484,7 @@
       <div class="scan-view">
         <div class="scan-hero">
           <h2>Scan a barcode</h2>
-          <p>Point your camera at any UPC code</p>
+          <p>Ship in when arrives · Ship out when leaves</p>
         </div>
 
         <div id="scanArea">
@@ -1427,18 +1620,13 @@
           </div>
 
           <div class="scan-qty-grid">
-            <div class="scan-qty-cell"><div class="label">NJ</div><div class="value">${n(sku.qtyNj)}</div></div>
-            <div class="scan-qty-cell"><div class="label">Nordstrom</div><div class="value">${n(sku.qtyNordstrom)}</div></div>
-            <div class="scan-qty-cell returns"><div class="label">Returns</div><div class="value">${n(sku.qtyReturns)}</div></div>
+            <div class="scan-qty-cell"><div class="label">En NJ</div><div class="value">${n(sku.qtyNj)}</div></div>
+            <div class="scan-qty-cell nord-cell"><div class="label">Cargado Nordstrom</div><div class="value">${n(sku.qtyNordstrom)}</div><div class="sublabel">admin only</div></div>
           </div>
 
-          <div class="scan-actions">
-            <button class="scan-action primary" data-scan-action="receive_nj">+1 NJ · Received</button>
-            <button class="scan-action" data-scan-action="nj_to_nordstrom" ${n(sku.qtyNj) <= 0 ? 'disabled' : ''}>-1 NJ → Nordstrom</button>
-            <button class="scan-action" data-scan-action="sold_from_nj" ${n(sku.qtyNj) <= 0 ? 'disabled' : ''}>-1 NJ → Sold</button>
-            <button class="scan-action" data-scan-action="sold_from_nordstrom" ${n(sku.qtyNordstrom) <= 0 ? 'disabled' : ''}>-1 Nord → Sold</button>
-            <button class="scan-action warn" data-scan-action="to_returns">+1 Returns</button>
-            <button class="scan-action" data-scan-action="return_restock" ${n(sku.qtyReturns) <= 0 ? 'disabled' : ''}>Return → NJ</button>
+          <div class="scan-actions scan-actions-5">
+            <button class="scan-action primary" data-scan-action="received">+1 SHIP IN</button>
+            <button class="scan-action" data-scan-action="ship_out" ${n(sku.qtyNj) <= 0 ? 'disabled' : ''}>−1 SHIP OUT</button>
           </div>
 
           <div class="scan-next-row">
@@ -1461,50 +1649,24 @@
     if (!sku) return;
     const monthKey = currentMonthKey();
 
-    let deltaNj = 0, deltaNord = 0, deltaReturns = 0, deltaSold = 0;
+    let deltaNj = 0;
     let readableAction = '';
 
-    if (action === 'receive_nj') {
+    if (action === 'received') {
       sku.qtyNj = n(sku.qtyNj) + 1;
-      sku.receivedByMonth = { ...(sku.receivedByMonth || {}) };
-      sku.receivedByMonth[monthKey] = (sku.receivedByMonth[monthKey] || 0) + 1;
+      sku.totalReceived = n(sku.totalReceived) + 1;
       deltaNj = 1;
-      readableAction = '+1 NJ';
-    } else if (action === 'nj_to_nordstrom') {
+      readableAction = 'SHIP IN';
+    } else if (action === 'ship_out') {
       if (n(sku.qtyNj) <= 0) { toast('No stock in NJ', 'error'); return; }
       sku.qtyNj = n(sku.qtyNj) - 1;
-      sku.qtyNordstrom = n(sku.qtyNordstrom) + 1;
-      deltaNj = -1; deltaNord = 1;
-      readableAction = 'NJ → Nord';
-    } else if (action === 'sold_from_nj') {
-      if (n(sku.qtyNj) <= 0) { toast('No stock in NJ', 'error'); return; }
-      sku.qtyNj = n(sku.qtyNj) - 1;
-      sku.soldByMonth = { ...(sku.soldByMonth || {}) };
-      sku.soldByMonth[monthKey] = (sku.soldByMonth[monthKey] || 0) + 1;
-      deltaNj = -1; deltaSold = 1;
-      readableAction = 'Sold (from NJ)';
-    } else if (action === 'sold_from_nordstrom') {
-      if (n(sku.qtyNordstrom) <= 0) { toast('No stock at Nordstrom', 'error'); return; }
-      sku.qtyNordstrom = n(sku.qtyNordstrom) - 1;
-      sku.soldByMonth = { ...(sku.soldByMonth || {}) };
-      sku.soldByMonth[monthKey] = (sku.soldByMonth[monthKey] || 0) + 1;
-      deltaNord = -1; deltaSold = 1;
-      readableAction = 'Sold (from Nord)';
-    } else if (action === 'to_returns') {
-      sku.qtyReturns = n(sku.qtyReturns) + 1;
-      deltaReturns = 1;
-      readableAction = '+1 Returns';
-    } else if (action === 'return_restock') {
-      if (n(sku.qtyReturns) <= 0) { toast('No returns to restock', 'error'); return; }
-      sku.qtyReturns = n(sku.qtyReturns) - 1;
-      sku.qtyNj = n(sku.qtyNj) + 1;
-      deltaReturns = -1; deltaNj = 1;
-      readableAction = 'Return → NJ';
+      deltaNj = -1;
+      readableAction = 'SHIP OUT';
     }
 
     try {
       await saveSku(sku);
-      logScanEvent({ sku_id: sku.id, upc: sku.upc, action, delta_nj: deltaNj, delta_nordstrom: deltaNord, delta_returns: deltaReturns, delta_sold: deltaSold });
+      logScanEvent({ sku_id: sku.id, upc: sku.upc, action, delta_nj: deltaNj, delta_nordstrom: 0, delta_returns: 0, delta_sold: 0 });
 
       // Record in recent scans
       state.recentScans.unshift({
@@ -1590,23 +1752,23 @@
     }
     const months = [...monthKeys].sort();
 
-    // Group by reference for aggregation headers
+    // Group by reference for style headers; render one row per SKU (size)
     const rowsHtml = [];
     let currentRef = null;
     for (const sku of items) {
       if (sku.reference !== currentRef) {
         currentRef = sku.reference;
-        // Compute style aggregates
+        // Compute style-level aggregates
         const styleSkus = items.filter(s => s.reference === currentRef);
-        const totalRec = styleSkus.reduce((sum, s) => sum + Object.values(s.receivedByMonth||{}).reduce((a,b) => a + n(b), 0), 0);
-        const totalSold = styleSkus.reduce((sum, s) => sum + Object.values(s.soldByMonth||{}).reduce((a,b) => a + n(b), 0), 0);
-        const st = totalRec > 0 ? Math.round((totalSold / totalRec) * 100) : 0;
-        const colCount = 10 + months.length + 1; // approximate
+        const styleRec = styleSkus.reduce((a, s) => a + computedTotalReceived(s), 0);
+        const styleSold = styleSkus.reduce((a, s) => a + computedTotalSold(s), 0);
+        const styleSt = styleRec > 0 ? Math.round((styleSold / styleRec) * 100) : 0;
+        const colCount = 11 + months.length + 1;
         rowsHtml.push(`
           <tr class="style-header-row">
-            <td colspan="6">${esc(currentRef)} · ${esc(styleSkus[0].name)}</td>
-            <td colspan="${colCount - 6}" class="st-summary">
-              Received ${totalRec} · Sold ${totalSold} · Sell-through <strong>${st}%</strong>
+            <td colspan="5">${esc(currentRef)} · ${esc(styleSkus[0].name)}</td>
+            <td colspan="${colCount - 5}" class="st-summary">
+              Received ${styleRec} · Sold ${styleSold} · Sell-through <strong>${styleSt}%</strong>
             </td>
           </tr>
         `);
@@ -1644,12 +1806,12 @@
                 <th class="center">Size</th>
                 <th class="num">NJ</th>
                 <th class="num">Nord.</th>
-                <th class="num">Return</th>
+                <th class="num">Gift</th>
                 <th class="num">Cost</th>
                 <th class="num">Retail</th>
                 ${monthCols}
                 <th class="num">Sell-thru</th>
-                <th class="center" style="width:100px;"></th>
+                <th class="center" style="width:140px;"></th>
               </tr>
             </thead>
             <tbody>
@@ -1666,11 +1828,46 @@
     $('addSkuBtn').addEventListener('click', () => openEditModal(null));
     main.querySelectorAll('[data-edit-id]').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.editId)));
     main.querySelectorAll('[data-del-id]').forEach(btn => btn.addEventListener('click', () => confirmDelete(btn.dataset.delId)));
+    main.querySelectorAll('[data-sale-id]').forEach(btn => btn.addEventListener('click', () => openSaleModal(btn.dataset.saleId)));
+    main.querySelectorAll('[data-group-sale]').forEach(btn => btn.addEventListener('click', () => openGroupSaleModal(btn.dataset.groupSale)));
+    main.querySelectorAll('[data-group-edit]').forEach(btn => btn.addEventListener('click', () => openGroupEditModal(btn.dataset.groupEdit)));
+  }
+
+  function renderColorRow(g, months) {
+    const st = g.totalRec > 0 ? Math.round((g.totalSold / g.totalRec) * 100) : null;
+    let stClass = 'low';
+    if (st !== null && st >= 70) stClass = 'high';
+    else if (st !== null && st >= 30) stClass = 'mid';
+
+    const monthCells = months.map(m => `<td class="num month-col">${n(g.soldByMonth?.[m]) || ''}</td>`).join('');
+
+    // Use first SKU ID as the "group key" — sale modal expands to show all sizes
+    const groupKey = `${g.reference}||${g.color}`;
+
+    return `
+      <tr>
+        <td class="ref-code">${esc(g.reference)}</td>
+        <td class="style-name">${esc(g.name)}</td>
+        <td class="color-cell">${esc(g.color)}</td>
+        <td class="num">${g.qtyNj || ''}</td>
+        <td class="num">${g.qtyNordstrom || ''}</td>
+        <td class="num">${g.totalGift || ''}</td>
+        <td class="num">${g.cost ? '$' + n(g.cost).toLocaleString() : ''}</td>
+        <td class="num">${g.listingPrice ? '$' + n(g.listingPrice).toLocaleString() : ''}</td>
+        ${monthCells}
+        <td class="st-cell ${stClass}">${st !== null ? st + '%' : '—'}</td>
+        <td class="actions">
+          <button data-group-sale="${esc(groupKey)}" class="sale-btn">+ Sale</button>
+          <button data-group-edit="${esc(groupKey)}">Sizes</button>
+        </td>
+      </tr>
+    `;
   }
 
   function renderAdminRow(sku, months) {
-    const totalRec = Object.values(sku.receivedByMonth||{}).reduce((a,b) => a + n(b), 0);
-    const totalSold = Object.values(sku.soldByMonth||{}).reduce((a,b) => a + n(b), 0);
+    const totalRec = computedTotalReceived(sku);
+    const totalSold = computedTotalSold(sku);
+    const totalGift = Object.values(sku.giftedByMonth||{}).reduce((a,b) => a + n(b), 0);
     const st = totalRec > 0 ? Math.round((totalSold / totalRec) * 100) : null;
     let stClass = 'low';
     if (st !== null && st >= 70) stClass = 'high';
@@ -1687,17 +1884,215 @@
         <td class="size-cell">${esc((sku.size||'').trim().toUpperCase())}</td>
         <td class="num">${n(sku.qtyNj) || ''}</td>
         <td class="num">${n(sku.qtyNordstrom) || ''}</td>
-        <td class="num">${n(sku.qtyReturns) || ''}</td>
+        <td class="num">${totalGift || ''}</td>
         <td class="num">${sku.cost ? '$' + n(sku.cost).toLocaleString() : ''}</td>
         <td class="num">${sku.listingPrice ? '$' + n(sku.listingPrice).toLocaleString() : ''}</td>
         ${monthCells}
         <td class="st-cell ${stClass}">${st !== null ? st + '%' : '—'}</td>
         <td class="actions">
+          <button data-sale-id="${sku.id}" class="sale-btn">+ Sale</button>
           <button data-edit-id="${sku.id}">Edit</button>
-          <button class="del" data-del-id="${sku.id}">Del</button>
+          <button class="del" data-del-id="${sku.id}">×</button>
         </td>
       </tr>
     `;
+  }
+
+  // ═══════════════════════════════════════════════
+  // GROUP-LEVEL MODALS (for color-aggregated rows)
+  // ═══════════════════════════════════════════════
+  async function openGroupSaleModal(groupKey) {
+    const [ref, color] = groupKey.split('||');
+    const skus = Object.values(state.skus).filter(s => s.reference === ref && s.color === color);
+    if (!skus.length) { toast('SKUs not found', 'error'); return; }
+
+    // Sort sizes in standard order
+    const sizeOrder = ['XS','S','M','L','XL','XXL','XXXL'];
+    skus.sort((a,b) => {
+      const ai = sizeOrder.indexOf((a.size||'').trim().toUpperCase());
+      const bi = sizeOrder.indexOf((b.size||'').trim().toUpperCase());
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+
+    // Step 1: Ask for size
+    const sizeList = skus.map(s => (s.size||'').trim().toUpperCase()).join(' / ');
+    const sizeInput = window.prompt(
+      `${skus[0].name} · ${color}\n\nWhich size sold?\nAvailable: ${sizeList}\n\nType the size (e.g. S, M, L):`,
+      ''
+    );
+    if (!sizeInput) return;
+    const targetSize = sizeInput.trim().toUpperCase();
+    const targetSku = skus.find(s => (s.size||'').trim().toUpperCase() === targetSize);
+    if (!targetSku) {
+      toast(`Size "${targetSize}" not found for this color`, 'error');
+      return;
+    }
+
+    // Step 2: Ask for channel
+    const channelInput = window.prompt(
+      `Record for:\n${targetSku.name} · ${targetSku.color} · ${targetSku.size}\nCurrent NJ: ${n(targetSku.qtyNj)}\n\nType: D (DTC) · N (Nordstrom) · G (Gift / PR)`,
+      'D'
+    );
+    if (!channelInput) return;
+    const c = channelInput.trim().toUpperCase();
+    const validChoices = ['D','DTC','N','NORDSTROM','G','GIFT','PR'];
+    if (!validChoices.includes(c)) {
+      toast('Invalid choice — type D, N, or G', 'error');
+      return;
+    }
+
+    // Record the sale (or gift)
+    const monthKey = currentMonthKey();
+
+    if (c === 'G' || c === 'GIFT' || c === 'PR') {
+      // GIFT — does NOT count as a sale. Tracked separately.
+      targetSku.giftedByMonth = { ...(targetSku.giftedByMonth || {}) };
+      targetSku.giftedByMonth[monthKey] = (targetSku.giftedByMonth[monthKey] || 0) + 1;
+    } else {
+      // SALE (DTC or Nordstrom)
+      targetSku.soldByMonth = { ...(targetSku.soldByMonth || {}) };
+      targetSku.soldByMonth[monthKey] = (targetSku.soldByMonth[monthKey] || 0) + 1;
+
+      if (c === 'D' || c === 'DTC') {
+        targetSku.soldDtcByMonth = { ...(targetSku.soldDtcByMonth || {}) };
+        targetSku.soldDtcByMonth[monthKey] = (targetSku.soldDtcByMonth[monthKey] || 0) + 1;
+      } else {
+        targetSku.soldNordstromByMonth = { ...(targetSku.soldNordstromByMonth || {}) };
+        targetSku.soldNordstromByMonth[monthKey] = (targetSku.soldNordstromByMonth[monthKey] || 0) + 1;
+      }
+    }
+
+    // Note: we do NOT touch qtyNj here. The warehouse assistant will scan
+    // SHIP OUT when the unit physically leaves, which decrements NJ.
+
+    try {
+      await saveSku(targetSku);
+      let label = 'DTC';
+      let kind = 'Sale';
+      if (c === 'N' || c === 'NORDSTROM') label = 'Nordstrom';
+      else if (c === 'G' || c === 'GIFT' || c === 'PR') { label = 'Gift / PR'; kind = 'Gift'; }
+      toast(`${kind} · ${label} · ${targetSku.name} ${targetSku.size}`, 'success');
+      render();
+    } catch(e) {
+      toast('Save failed', 'error');
+    }
+  }
+
+  // Shows a list of all sizes for a color, with individual Edit / Del per row
+  function openGroupEditModal(groupKey) {
+    const [ref, color] = groupKey.split('||');
+    const skus = Object.values(state.skus).filter(s => s.reference === ref && s.color === color);
+    if (!skus.length) return;
+
+    const sizeOrder = ['XS','S','M','L','XL','XXL','XXXL'];
+    skus.sort((a,b) => {
+      const ai = sizeOrder.indexOf((a.size||'').trim().toUpperCase());
+      const bi = sizeOrder.indexOf((b.size||'').trim().toUpperCase());
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+
+    const rows = skus.map(s => {
+      const totalSold = Object.values(s.soldByMonth || {}).reduce((a,b) => a + n(b), 0);
+      return `
+        <div class="size-row">
+          <span class="size-row-size">${esc((s.size||'').trim().toUpperCase())}</span>
+          <span class="size-row-upc">${esc(s.upc)}</span>
+          <span class="size-row-stat">NJ: <strong>${n(s.qtyNj)}</strong></span>
+          <span class="size-row-stat">Nord: <strong>${n(s.qtyNordstrom)}</strong></span>
+          <span class="size-row-stat">Sold: <strong>${totalSold}</strong></span>
+          <button class="size-row-edit" data-edit-sku="${s.id}">Edit</button>
+          <button class="size-row-del" data-del-sku="${s.id}">×</button>
+        </div>
+      `;
+    }).join('');
+
+    $('editTitle').textContent = `${skus[0].name} · ${color}`;
+    $('editDelete').style.visibility = 'hidden';
+    $('editFields').innerHTML = `
+      <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;">${esc(ref)} · ${skus.length} sizes</p>
+      <div class="sizes-list">
+        ${rows}
+      </div>
+    `;
+    // Hide the Save button — this is read-only list view
+    $('editBackdrop').classList.add('open');
+    document.querySelector('.modal-actions').style.display = 'none';
+
+    // Wire up per-size edit/del
+    $('editFields').querySelectorAll('[data-edit-sku]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeEditModal();
+        openEditModal(btn.dataset.editSku);
+      });
+    });
+    $('editFields').querySelectorAll('[data-del-sku]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const s = state.skus[btn.dataset.delSku];
+        if (!s) return;
+        if (!confirm(`Delete ${s.name} · ${s.color} · ${s.size}?`)) return;
+        delete state.skus[btn.dataset.delSku];
+        await deleteSku(btn.dataset.delSku);
+        closeEditModal();
+        render();
+        toast('Deleted');
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // RECORD SALE MODAL (admin-only — for manual sale recording)
+  // ═══════════════════════════════════════════════
+  async function openSaleModal(skuId) {
+    const sku = state.skus[skuId];
+    if (!sku) return;
+
+    // Build a custom prompt — D (DTC), N (Nordstrom), or G (Gift / PR)
+    const choice = window.prompt(
+      `Record for:\n\n${sku.name} · ${sku.color} · ${sku.size}\nCurrent NJ: ${n(sku.qtyNj)}\n\nType: D (DTC) · N (Nordstrom) · G (Gift / PR)`,
+      'D'
+    );
+    if (!choice) return;
+    const c = choice.trim().toUpperCase();
+    const validChoices = ['D','DTC','N','NORDSTROM','G','GIFT','PR'];
+    if (!validChoices.includes(c)) {
+      toast('Invalid choice — type D, N, or G', 'error');
+      return;
+    }
+
+    const monthKey = currentMonthKey();
+
+    if (c === 'G' || c === 'GIFT' || c === 'PR') {
+      // GIFT — tracked separately, does NOT count as a sale
+      sku.giftedByMonth = { ...(sku.giftedByMonth || {}) };
+      sku.giftedByMonth[monthKey] = (sku.giftedByMonth[monthKey] || 0) + 1;
+    } else {
+      // SALE (DTC or Nordstrom)
+      sku.soldByMonth = { ...(sku.soldByMonth || {}) };
+      sku.soldByMonth[monthKey] = (sku.soldByMonth[monthKey] || 0) + 1;
+
+      if (c === 'D' || c === 'DTC') {
+        sku.soldDtcByMonth = { ...(sku.soldDtcByMonth || {}) };
+        sku.soldDtcByMonth[monthKey] = (sku.soldDtcByMonth[monthKey] || 0) + 1;
+      } else {
+        sku.soldNordstromByMonth = { ...(sku.soldNordstromByMonth || {}) };
+        sku.soldNordstromByMonth[monthKey] = (sku.soldNordstromByMonth[monthKey] || 0) + 1;
+      }
+    }
+
+    // Note: we do NOT touch qtyNj here. The warehouse assistant will scan
+    // SHIP OUT when the unit physically leaves, which decrements NJ.
+
+    try {
+      await saveSku(sku);
+      let label = 'DTC';
+      let kind = 'Sale';
+      if (c === 'N' || c === 'NORDSTROM') label = 'Nordstrom';
+      else if (c === 'G' || c === 'GIFT' || c === 'PR') { label = 'Gift / PR'; kind = 'Gift'; }
+      toast(`${kind} · ${label} · ${sku.name} ${sku.size}`, 'success');
+      render();
+    } catch(err) {
+      toast('Save failed', 'error');
+    }
   }
 
   // ═══════════════════════════════════════════════
@@ -1708,6 +2103,9 @@
     const existing = id ? state.skus[id] : null;
     $('editTitle').textContent = existing ? 'Edit SKU' : 'Add SKU';
     $('editDelete').style.visibility = existing ? 'visible' : 'hidden';
+    // Make sure modal actions are visible (group edit modal hides them)
+    const actions = document.querySelector('.modal-actions');
+    if (actions) actions.style.display = '';
 
     const s = existing || {};
     $('editFields').innerHTML = `
@@ -1735,7 +2133,13 @@
     setTimeout(() => $('editFields').querySelector('input')?.focus(), 80);
   }
 
-  function closeEditModal() { $('editBackdrop').classList.remove('open'); state.editingId = null; }
+  function closeEditModal() {
+    $('editBackdrop').classList.remove('open');
+    state.editingId = null;
+    // Restore modal-actions visibility (might be hidden by group edit modal)
+    const actions = document.querySelector('.modal-actions');
+    if (actions) actions.style.display = '';
+  }
 
   async function saveFromModal() {
     const data = {};
@@ -1761,8 +2165,11 @@
       cost: data.cost ?? '',
       listingPrice: data.listingPrice ?? '',
       notes: data.notes || '',
-      receivedByMonth: existing?.receivedByMonth || {},
-      soldByMonth: existing?.soldByMonth || {}
+      totalReceived: Number(existing?.totalReceived) || 0,
+      soldByMonth: existing?.soldByMonth || {},
+      soldDtcByMonth: existing?.soldDtcByMonth || {},
+      soldNordstromByMonth: existing?.soldNordstromByMonth || {},
+      giftedByMonth: existing?.giftedByMonth || {}
     };
     state.skus[id] = sku;
     try {
