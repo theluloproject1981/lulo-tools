@@ -922,7 +922,8 @@
       <button class="icon-btn" id="menuBtn">Menu ▾</button>
       <div class="menu-dropdown" id="menuDropdown">
         <div class="menu-section-title">Data</div>
-        <button class="menu-item" data-action="import-excel">Import Excel</button>
+        <button class="menu-item" data-action="import-excel">Import Excel (inventory)</button>
+        <button class="menu-item" data-action="import-sales">Import sales history</button>
         <button class="menu-item" data-action="export-excel">Export Excel</button>
         <button class="menu-item" data-action="add-sku">+ Add SKU manually</button>
         <div class="menu-section-title">Danger zone</div>
@@ -993,6 +994,7 @@
 </div>
 
 <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv">
+<input type="file" id="salesFileInput" accept=".xlsx,.xls,.csv">
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1351,6 +1353,157 @@
     } catch(err) {
       console.error('Import error', err);
       toast('Import failed — check console', 'error');
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // SALES HISTORY IMPORT
+  // Reads an exported Admin Detail sheet (with monthly columns filled in)
+  // and REPLACES each SKU's monthly sales / gifts for the months found.
+  // Does NOT touch NJ qty, Nordstrom qty, cost, price, or any other field.
+  // Match by UPC. Blank cells leave existing values alone.
+  // ═══════════════════════════════════════════════
+  async function handleSalesFile(file) {
+    try {
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data, { type: 'array' });
+
+      // Find the Admin Detail sheet
+      let sheetName = wb.SheetNames.find(n => /admin\s*detail/i.test(n));
+      if (!sheetName) sheetName = wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+
+      if (!rows.length) { toast('Sheet is empty', 'error'); return; }
+
+      // Find header row — look for CODIGO or UPC
+      let headerIdx = -1;
+      for (let i = 0; i < Math.min(rows.length, 10); i++) {
+        const r = rows[i].map(c => (c == null ? '' : String(c)).trim().toUpperCase());
+        if (r.includes('CODIGO') || r.includes('UPC')) { headerIdx = i; break; }
+      }
+      if (headerIdx < 0) { toast('Could not find header row with UPC/CODIGO column', 'error'); return; }
+
+      const header = rows[headerIdx].map(c => (c == null ? '' : String(c)).trim());
+      const upcCol = header.findIndex(h => /^(UPC|CODIGO)$/i.test(h));
+      if (upcCol < 0) { toast('UPC column not found', 'error'); return; }
+
+      // Monthly columns look like "2026-09 sold DTC", "2026-09 sold Nord", "2026-09 gifted"
+      const monthCols = [];
+      header.forEach((h, idx) => {
+        const m = h.match(/(\d{4}-\d{2})\s*(sold\s*dtc|sold\s*nord|sold\s*nordstrom|gifted|gift)/i);
+        if (!m) return;
+        const month = m[1];
+        const label = m[2].toLowerCase().replace(/\s+/g,'');
+        let kind;
+        if (label.includes('dtc')) kind = 'dtc';
+        else if (label.includes('nord')) kind = 'nord';
+        else if (label.includes('gift')) kind = 'gift';
+        if (kind) monthCols.push({ col: idx, month, kind });
+      });
+
+      if (!monthCols.length) {
+        toast('No monthly sales columns found (e.g. "2026-09 sold DTC")', 'error');
+        return;
+      }
+
+      const monthsFound = [...new Set(monthCols.map(c => c.month))].sort();
+
+      // Build UPC lookup from current state
+      const byUpc = {};
+      for (const s of Object.values(state.skus)) {
+        if (s.upc) byUpc[String(s.upc).trim()] = s;
+      }
+
+      // Walk data rows
+      const toSave = [];
+      let matched = 0, unmatched = 0, cellsUpdated = 0;
+      const unmatchedUpcs = [];
+
+      for (let i = headerIdx + 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.every(c => c == null || c === '')) continue;
+        const upcRaw = row[upcCol];
+        if (upcRaw == null || upcRaw === '') continue;
+        let upc = String(upcRaw).trim();
+        if (upc.endsWith('.0')) upc = upc.slice(0, -2);
+        const asNum = Number(upc);
+        if (!isNaN(asNum) && isFinite(asNum) && !upc.startsWith('NEW_') && !upc.startsWith('NOUPC')) {
+          upc = String(Math.round(asNum));
+        }
+
+        const sku = byUpc[upc];
+        if (!sku) {
+          unmatched++;
+          if (unmatchedUpcs.length < 5) unmatchedUpcs.push(upc);
+          continue;
+        }
+
+        // Clone the monthly maps so we don't mutate shared refs
+        const nextDtc = { ...(sku.soldDtcByMonth || {}) };
+        const nextNord = { ...(sku.soldNordstromByMonth || {}) };
+        const nextGift = { ...(sku.giftedByMonth || {}) };
+
+        let rowChanged = false;
+        for (const mc of monthCols) {
+          const cell = row[mc.col];
+          if (cell == null || cell === '') continue; // blank = leave alone
+          const v = Number(cell);
+          if (isNaN(v)) continue;
+          const intV = Math.max(0, Math.round(v));
+
+          if (mc.kind === 'dtc') {
+            if ((nextDtc[mc.month] || 0) !== intV) { nextDtc[mc.month] = intV; rowChanged = true; cellsUpdated++; }
+          } else if (mc.kind === 'nord') {
+            if ((nextNord[mc.month] || 0) !== intV) { nextNord[mc.month] = intV; rowChanged = true; cellsUpdated++; }
+          } else if (mc.kind === 'gift') {
+            if ((nextGift[mc.month] || 0) !== intV) { nextGift[mc.month] = intV; rowChanged = true; cellsUpdated++; }
+          }
+        }
+
+        if (!rowChanged) continue;
+
+        // Rebuild soldByMonth = dtc + nord per month (gifts are tracked separately)
+        const nextSold = {};
+        const allMonths = new Set([...Object.keys(nextDtc), ...Object.keys(nextNord)]);
+        for (const m of allMonths) {
+          const sum = (nextDtc[m] || 0) + (nextNord[m] || 0);
+          if (sum > 0) nextSold[m] = sum;
+        }
+
+        sku.soldDtcByMonth = nextDtc;
+        sku.soldNordstromByMonth = nextNord;
+        sku.giftedByMonth = nextGift;
+        sku.soldByMonth = nextSold;
+
+        state.skus[sku.id] = sku;
+        toSave.push(sku);
+        matched++;
+      }
+
+      if (!toSave.length) {
+        toast(`No changes · ${matched} matched · ${unmatched} UPCs not found`, 'error');
+        return;
+      }
+
+      const confirmMsg =
+        `Import sales for ${monthsFound.join(', ')}?\n\n` +
+        `${matched} SKUs will be updated (${cellsUpdated} month values).\n` +
+        `${unmatched} UPCs in the file did not match any SKU` +
+        (unmatchedUpcs.length ? ' (e.g. ' + unmatchedUpcs.join(', ') + ')' : '') + `.\n\n` +
+        `This REPLACES the month values for matched SKUs. Blank cells are left as-is. NJ, Nordstrom qty, cost and price are not touched.`;
+
+      if (!confirm(confirmMsg)) {
+        toast('Cancelled', 'error');
+        return;
+      }
+
+      await saveManySkus(toSave);
+      render();
+      toast(`Sales imported · ${matched} SKUs · ${cellsUpdated} values · ${monthsFound.join(', ')}`, 'success');
+    } catch(err) {
+      console.error('Sales import error', err);
+      toast('Sales import failed — check console', 'error');
     }
   }
 
@@ -2238,6 +2391,11 @@
       if (f) await handleExcelFile(f);
       e.target.value = '';
     });
+    $('salesFileInput').addEventListener('change', async e => {
+      const f = e.target.files[0];
+      if (f) await handleSalesFile(f);
+      e.target.value = '';
+    });
 
     $('editClose').addEventListener('click', closeEditModal);
     $('editBackdrop').addEventListener('click', e => { if (e.target.id === 'editBackdrop') closeEditModal(); });
@@ -2259,6 +2417,7 @@
       const a = e.target.dataset?.action; if (!a) return;
       menu.classList.remove('open');
       if (a === 'import-excel') $('excelFileInput').click();
+      else if (a === 'import-sales') $('salesFileInput').click();
       else if (a === 'export-excel') exportExcel();
       else if (a === 'add-sku') openEditModal(null);
       else if (a === 'clear-all') clearAll();
